@@ -3,74 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QR Sign-In System</title>
+  <title>Student Pass | Campus Gate Pass</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="backend-config.js?v=shared-3" defer></script>
+  <script src="app.js?v=shared-3" defer></script>
 </head>
 <body>
-  <header>
-    <nav class="navbar">
-      <a class="logo" href="#home">QR Sign-In</a>
-      <div class="nav-links">
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#how-it-works">How It Works</a>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-    <section class="intro" id="home">
-      <div class="intro-text">
-        <p class="small-heading">CLASS AND EVENT ATTENDANCE</p>
-        <h1>Sign in with a QR code</h1>
-        <p class="intro-copy">
-          This website will help students sign in for classes and events by scanning a QR code.
-          It will also help organizers keep attendance in one place.
-        </p>
-        <a class="button" href="#how-it-works">Learn how it works</a>
-      </div>
-
-      <div class="qr-placeholder" aria-label="QR code preview placeholder">
-        <div class="qr-box">QR<br>CODE</div>
-        <p>QR code preview</p>
-      </div>
+  <header class="site-header"><a class="brand" href="index.html"><span class="brand-icon">G</span> Campus Gate Pass</a><nav><a class="nav-link active" href="index.html">Student</a></nav></header>
+  <main class="container narrow">
+    <section class="intro"><p class="small-heading">STUDENT PORTAL</p><h1>Student pass</h1><p>Sign in to open your QR gate pass. First time here? Create your student account once.</p></section>
+    <div class="info-note"><strong>Shared account:</strong> Your name, roll number, and gate status are saved for future visits.</div>
+    <section id="student-login" class="panel login-panel">
+      <h2>Returning student sign-in</h2>
+      <form id="student-login-form">
+        <label for="student-roll">Roll number</label><input id="student-roll" autocomplete="username" placeholder="Enter your roll number" required>
+        <label for="student-code">Pass code</label><input id="student-code" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Enter your pass code" required>
+        <button class="button" type="submit">View my pass</button>
+      </form>
+      <div id="student-message" class="message hidden" role="status"></div>
+      <p class="account-switch">First time? <button id="show-register" class="text-button" type="button">Create a student account</button></p>
     </section>
-
-    <section class="about-section" id="about">
-      <h2>About the project</h2>
-      <p>
-        QR Sign-In is a simple attendance system for students, teachers, and event organizers.
-        Instead of writing names on a paper sheet, participants will be able to scan a code and
-        enter their details.
-      </p>
+    <section id="student-register" class="panel login-panel hidden">
+      <h2>One-time student registration</h2>
+      <p class="muted">Enter your details and choose a pass code. Use the same roll number and pass code next time.</p>
+      <form id="student-register-form">
+        <label for="student-name-input">Full name</label><input id="student-name-input" autocomplete="name" maxlength="100" placeholder="Enter your name" required>
+        <label for="student-roll-new">College roll number</label><input id="student-roll-new" autocomplete="username" maxlength="64" placeholder="Enter your roll number" required>
+        <label for="student-code-new">Create pass code</label><input id="student-code-new" type="password" minlength="4" maxlength="64" autocomplete="new-password" placeholder="At least 4 characters" required>
+        <label for="student-code-confirm">Confirm pass code</label><input id="student-code-confirm" type="password" minlength="4" maxlength="64" autocomplete="new-password" placeholder="Re-enter your pass code" required>
+        <button class="button" type="submit">Create account and view pass</button>
+      </form>
+      <div id="register-message" class="message hidden" role="status"></div>
+      <p class="account-switch">Already registered? <button id="show-login" class="text-button" type="button">Sign in</button></p>
     </section>
-
-    <section class="how-section" id="how-it-works">
-      <h2>How it works</h2>
-      <div class="steps">
-        <article class="step">
-          <span class="number">1</span>
-          <h3>Create a session</h3>
-          <p>The organizer creates a class or event sign-in.</p>
-        </article>
-
-        <article class="step">
-          <span class="number">2</span>
-          <h3>Scan the code</h3>
-          <p>Participants scan the QR code with their phone.</p>
-        </article>
-
-        <article class="step">
-          <span class="number">3</span>
-          <h3>Record attendance</h3>
-          <p>Their sign-in is added to the attendance list.</p>
-        </article>
-      </div>
+    <section id="student-pass" class="panel hidden">
+      <div class="history-heading"><div><p class="small-heading">YOUR PASS</p><h2 id="student-name"></h2><p id="student-roll-display" class="muted"></p></div><button id="student-logout" class="text-button" type="button">Sign out</button></div>
+      <div class="card-title-row"><p>Current gate status: <strong id="student-status">OUT</strong></p></div>
+      <div class="qr-frame"><div id="student-qr" class="qr-code"></div></div>
+      <p class="pass-help">Show this QR and your college ID to the guard.</p>
     </section>
+    <p class="role-note">Guard access is on a separate page. Your pass and gate status are available when you sign in again.</p>
   </main>
-
-  <footer>
-    <p>QR Sign-In System · Student project draft</p>
-  </footer>
+  <footer>Campus Gate Pass · Student portal</footer>
 </body>
 </html>

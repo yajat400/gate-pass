@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guard Desk | Campus Gate Pass</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="backend-config.js?v=shared-3" defer></script>
+  <script src="app.js?v=shared-3" defer></script>
+</head>
+<body>
+  <header class="site-header"><span class="brand"><span class="brand-icon">G</span> Campus Gate Pass</span><nav><span class="nav-link active">Guard desk</span></nav></header>
+  <main class="container narrow">
+    <section class="intro"><p class="small-heading">MAIN GATE</p><h1>Guard desk</h1><p>Scan a student's pass, verify their physical college ID, and record entry or exit.</p></section>
+    <div class="info-note"><strong>Shared backend:</strong> Guard sign-in and movement checks run against the shared database.</div>
+    <section id="guard-login" class="panel login-panel">
+      <h2>Guard sign-in</h2>
+      <form id="guard-login-form"><label for="guard-pin">Guard PIN</label><input id="guard-pin" type="password" inputmode="numeric" placeholder="Enter guard PIN" required><button class="button" type="submit">Open guard desk</button></form>
+      <div id="guard-message" class="message hidden" role="status"></div>
+    </section>
+    <section id="guard-dashboard" class="hidden">
+      <div class="panel"><div class="history-heading"><div><p class="small-heading">MAIN GATE</p><h2>Record a scan</h2></div><button id="guard-logout" class="text-button" type="button">Sign out</button></div>
+        <p class="muted">A USB QR scanner types the scanned link below. Click Find student if it does not submit automatically.</p>
+        <form id="scan-form"><label for="qr-token">QR link or token</label><div class="scan-row"><input id="qr-token" placeholder="Scan QR or enter token" autocomplete="off" required><button class="button" type="submit">Find student</button></div></form>
+      </div>
+      <div id="scan-message" class="message hidden" role="status"></div>
+      <section id="student-result" class="panel hidden"><p class="small-heading">MATCHED STUDENT</p><h2 id="result-name"></h2><p id="result-roll" class="muted"></p><p>Current status: <strong id="result-status"></strong></p><p class="id-reminder">Check the student's physical college ID before recording movement.</p>
+        <form id="confirm-form"><label for="movement">Select movement</label><select id="movement" required><option value="">Choose entry or exit</option><option value="ENTRY">Entry — entering campus</option><option value="EXIT">Exit — leaving campus</option></select><label class="check-line"><input id="id-check" type="checkbox" required> I checked the physical college ID.</label><button class="button" type="submit">Record scan</button></form>
+      </section>
+      <section class="panel history-panel"><div class="history-heading"><div><p class="small-heading">RECENT ACTIVITY</p><h2>Recent scans</h2></div><span class="muted">Shared history</span></div><div id="scan-history"><p class="muted">No scans recorded yet.</p></div></section>
+    </section>
+  </main>
+  <footer>Campus Gate Pass · Guard station</footer>
+</body>
+</html>
