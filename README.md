@@ -13,6 +13,12 @@ A student registers once with their name, college roll number, and a pass code t
 - `BACKEND_SETUP.md` explains setup and account use.
 - `style.css` controls page layout and colours.
 
+## Task 6 features
+
+- Students can download their QR pass as a PNG or print a pass card.
+- Guards can scan QR passes with a device camera on supported browsers. The page needs HTTPS and camera permission; USB scanners and manual entry remain available.
+- Guards can filter recent scans by student name, roll number, or movement.
+
 ## Student use
 
 1. On the first visit, choose **Create a student account**.
@@ -23,7 +29,7 @@ Each roll number can register only once. The account stores a protected pass-cod
 
 ## Guard use
 
-Open `guard.html`, sign in, scan the student's QR, check the physical college ID, and record Entry or Exit. Set a private guard PIN in Supabase before using this outside a classroom project. Do not store guard PINs in this repository.
+Open `guard.html`, sign in, scan the student's QR, check the physical college ID, and record Entry or Exit. The existing guard PIN is `2468`; change it before using this outside a classroom project.
 
 Do not put Supabase secret or service-role keys in browser files. Student names and roll numbers entered through registration are self-reported; this version does not check them against an official college roster.
 

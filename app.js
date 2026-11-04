@@ -4,7 +4,10 @@ const config = window.CAMPUS_BACKEND_CONFIG || {};
 const studentSessionKey = "campusPassStudentSession";
 const guardSessionKey = "campusPassGuardSession";
 let selectedStudent = null;
+let activeStudent = null;
 let studentRefreshTimer = null;
+let cameraStream = null;
+let cameraFrame = null;
 
 const backendReady = Boolean(config.supabaseUrl && config.anonKey);
 
@@ -40,6 +43,7 @@ function clearMessage(id) {
 }
 
 function showStudentPass(student) {
+  activeStudent = student;
   document.getElementById("student-login")?.classList.add("hidden");
   document.getElementById("student-register")?.classList.add("hidden");
   document.getElementById("student-pass")?.classList.remove("hidden");
@@ -52,6 +56,18 @@ function showStudentPass(student) {
   qrTarget.innerHTML = "";
   if (window.QRCode) new QRCode(qrTarget, { text: guardLink.href, width: 148, height: 148, colorDark: "#1d3551", colorLight: "#ffffff" });
   else message("student-message", "QR library did not load. Check your internet connection and reload.", "error");
+}
+
+function downloadStudentPass() {
+  const student = activeStudent;
+  const qrTarget = document.getElementById("student-qr");
+  const image = qrTarget?.querySelector("img") || qrTarget?.querySelector("canvas");
+  const dataUrl = image?.tagName === "CANVAS" ? image.toDataURL("image/png") : image?.src;
+  if (!dataUrl) return message("student-message", "The QR code is not ready yet. Try again in a moment.", "error");
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = `campus-pass-${(student?.roll || "student").replace(/[^a-z0-9_-]/gi, "_")}.png`;
+  link.click();
 }
 
 function startStudentSession(result) {
@@ -82,6 +98,8 @@ function initStudentPage() {
   const form = document.getElementById("student-login-form");
   const registerForm = document.getElementById("student-register-form");
   if (!form) return;
+  document.getElementById("print-pass")?.addEventListener("click", () => window.print());
+  document.getElementById("download-pass")?.addEventListener("click", downloadStudentPass);
   if (!backendReady) message("student-message", "Shared backend setup is needed. Follow BACKEND_SETUP.md before using this portal.", "error");
 
   form.addEventListener("submit", async (event) => {
@@ -208,14 +226,69 @@ async function refreshHistory() {
     movement.textContent = scan.movement;
     details.append(name, sub);
     row.append(details, movement);
+    row.dataset.search = `${scan.name} ${scan.roll} ${scan.movement}`.toLowerCase();
     list.append(row);
   });
   target.append(list);
+  document.getElementById("history-search")?.dispatchEvent(new Event("input"));
+}
+
+function stopCamera() {
+  if (cameraFrame) cancelAnimationFrame(cameraFrame);
+  cameraFrame = null;
+  cameraStream?.getTracks().forEach((track) => track.stop());
+  cameraStream = null;
+  const video = document.getElementById("camera-preview");
+  if (video) { video.pause(); video.srcObject = null; video.classList.add("hidden"); }
+  document.getElementById("camera-stop")?.classList.add("hidden");
+  document.getElementById("camera-start")?.classList.remove("hidden");
+}
+
+async function startCamera() {
+  const video = document.getElementById("camera-preview");
+  if (!window.BarcodeDetector || !navigator.mediaDevices?.getUserMedia) {
+    return message("camera-message", "Camera QR scanning is unavailable in this browser. Use the USB scanner or enter the link.", "error");
+  }
+  try {
+    const detector = new BarcodeDetector({ formats: ["qr_code"] });
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    video.srcObject = cameraStream;
+    video.classList.remove("hidden");
+    document.getElementById("camera-start").classList.add("hidden");
+    document.getElementById("camera-stop").classList.remove("hidden");
+    await video.play();
+    clearMessage("camera-message");
+    const scanFrame = async () => {
+      if (!cameraStream) return;
+      try {
+        const codes = await detector.detect(video);
+        if (codes.length && codes[0].rawValue) {
+          document.getElementById("qr-token").value = codes[0].rawValue;
+          stopCamera();
+          document.getElementById("scan-form").requestSubmit();
+          return;
+        }
+      } catch { /* Continue scanning while the camera adjusts focus. */ }
+      cameraFrame = requestAnimationFrame(scanFrame);
+    };
+    cameraFrame = requestAnimationFrame(scanFrame);
+  } catch (error) {
+    stopCamera();
+    message("camera-message", error.name === "NotAllowedError" ? "Camera access was blocked. Allow camera access in your browser to scan." : "Could not start the camera. Check that this page uses HTTPS and the camera is available.", "error");
+  }
 }
 
 function initGuardPage() {
   const form = document.getElementById("guard-login-form");
   if (!form) return;
+  document.getElementById("camera-start")?.addEventListener("click", startCamera);
+  document.getElementById("camera-stop")?.addEventListener("click", stopCamera);
+  document.getElementById("history-search")?.addEventListener("input", (event) => {
+    const query = event.target.value.trim().toLowerCase();
+    document.querySelectorAll("#scan-history .history-list li").forEach((row) => {
+      row.classList.toggle("hidden", !row.dataset.search.includes(query));
+    });
+  });
   if (!backendReady) message("guard-message", "Shared backend setup is needed. Follow BACKEND_SETUP.md before using this portal.", "error");
 
   const dashboard = async (pendingScan = "") => {
@@ -253,6 +326,7 @@ function initGuardPage() {
   }
 
   document.getElementById("guard-logout").addEventListener("click", async () => {
+    stopCamera();
     const token = localStorage.getItem(guardSessionKey);
     if (token) rpc("logout_session", { p_session_token: token }).catch(() => {});
     localStorage.removeItem(guardSessionKey);
