@@ -1,29 +1,36 @@
-# Campus Gate Pass
+# CampusPass Gate Pass
 
-A student registers once with their name, college roll number, and a pass code they choose. Their account and QR pass are saved in Supabase for later sign-ins. The student page is hosted on GitHub Pages; guard scans and gate status use the shared database.
+CampusPass is a PHP and MySQL college gate-pass prototype. Students display a QR pass, and a guard checks the physical college ID before recording an entry or exit.
 
-## Files
+## Project layout
 
-- `index.html` contains student sign-in and one-time registration.
-- `guard.html` is the separate guard sign-in and scan page.
-- `app.js` connects page actions to the database and refreshes student status.
-- `backend-config.js` contains the public Supabase URL and publishable key.
-- `supabase_setup.sql` creates the tables and database functions. It does not add sample students.
-- `student_registration_migration.sql` updates an existing database with student registration and disables old sample accounts.
-- `BACKEND_SETUP.md` explains setup and account use.
-- `style.css` controls page layout and colours.
+```text
+index.html          Required root entry page; forwards to the PHP app
+index.php           Student pass page
+pages/
+  guard.php          Guard sign-in and scan page
+  process.php        Scan result and status update
+css/
+  style.css          Responsive page styling
+js/
+  app.js             QR code rendering
+bootstrap.php        Database connection and session helpers
+config.example.php   Safe configuration template
+schema.sql           Tables and anonymous demo records
+```
 
-## Student use
+## Set up locally or on PHP hosting
 
-1. On the first visit, choose **Create a student account**.
-2. Enter your name and college roll number, then choose and confirm a pass code.
-3. Your QR pass opens. On later visits, sign in with the same roll number and pass code.
+1. Create a MySQL database and import `schema.sql` in phpMyAdmin.
+2. Copy `config.example.php` to `config.php` and enter the database host, database name, username, password, and a private guard PIN. Keep `config.php` out of GitHub.
+3. Upload the project files to the website's document root. Keep the `pages`, `css`, and `js` folders in place.
+4. Open the website root. The `index.html` entry forwards to `index.php`.
+5. Open **Guard desk**. Use the PIN you set in `config.php`.
 
-Each roll number can register only once. The account stores a protected pass-code hash, not the pass code itself.
+The QR-code library is loaded from a CDN, so the browser needs an internet connection to render QR images.
 
-## Guard use
+## Demo and safety notes
 
-Open `guard.html`, sign in, scan the student's QR, check the physical college ID, and record Entry or Exit. Set a private guard PIN in Supabase before using this outside a classroom project. Do not store guard PINs in this repository.
+The SQL file uses anonymous demo students. Replace them only with consented test records. A QR code can be copied, so the guard must compare the person's face and physical college ID with the displayed name and roll number. This prototype records that the guard checked the ID; it cannot prove that the check was honest.
 
-Do not put Supabase secret or service-role keys in browser files. Student names and roll numbers entered through registration are self-reported; this version does not check them against an official college roster.
-
+The demo page displays both sample passes together. A real deployment needs student accounts and must show each student only their own pass. Use HTTPS, a strong private guard PIN, and a database account limited to this application's database before any real use.
