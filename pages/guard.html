@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guard Desk | Campus Gate Pass</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/html5-qrcode.min.js?v=task8-3" defer></script>
+  <script src="../js/backend-config.js?v=task8-3" defer></script>
+  <script src="../js/app.js?v=task8-3" defer></script>
+  <script src="../js/visitor-guard.js?v=task8-3" defer></script>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="../index.html"><span class="brand-icon">G</span> Campus Gate Pass</a><nav><a class="nav-link" href="../index.html">Student</a><a class="nav-link" href="visitor.html">Visitor</a><a class="nav-link active" href="guard.html">Guard desk</a><a class="nav-link" href="admin.html">Admin</a></nav></header>
+  <main class="container narrow">
+    <section class="intro"><p class="small-heading">MAIN GATE</p><h1>Guard desk</h1><p>Scan student and approved visitor passes, verify ID, and record entry or exit.</p></section>
+    <div class="info-note"><strong>Shared backend:</strong> Guard sign-in and movement checks run against the shared database.</div>
+    <section id="guard-login" class="panel login-panel">
+      <h2>Guard sign-in</h2>
+      <form id="guard-login-form"><label for="guard-pin">Guard PIN</label><input id="guard-pin" type="password" minlength="8" maxlength="64" autocomplete="current-password" placeholder="Enter private guard PIN" required><button class="button" type="submit">Open guard desk</button></form>
+      <div id="guard-message" class="message hidden" role="status"></div>
+    </section>
+    <section id="guard-dashboard" class="hidden">
+      <div class="panel"><div class="history-heading"><div><p class="small-heading">MAIN GATE</p><h2>Record a scan</h2></div><button id="guard-logout" class="text-button" type="button">Sign out</button></div>
+        <p class="muted">Choose the pass type and scan its QR with this device's camera. The next movement is based on the current gate status.</p>
+        <div class="scan-actions"><button id="start-student-camera" class="button" type="button">Scan student pass</button><button id="start-visitor-camera" class="button button-secondary" type="button">Scan visitor pass</button></div>
+        <div id="qr-camera-panel" class="camera-panel hidden">
+          <div id="qr-reader"></div>
+          <div id="qr-camera-message" class="message hidden" role="status"></div>
+          <button id="stop-qr-camera" class="button button-secondary" type="button">Close camera</button>
+        </div>
+        <details class="manual-scan"><summary>Use manual scan input</summary>
+          <form id="scan-form"><label for="qr-token">Student QR link or token</label><div class="scan-row"><input id="qr-token" placeholder="Paste or type the student QR link" autocomplete="off" required><button class="button" type="submit">Find student</button></div></form>
+        </details>
+      </div>
+      <div id="scan-message" class="message hidden" role="status"></div>
+      <section id="student-result" class="panel hidden"><p class="small-heading">MATCHED STUDENT</p><h2 id="result-name"></h2><p id="result-roll" class="muted"></p><p>Current status: <strong id="result-status"></strong></p><p>Next movement: <strong id="next-movement"></strong></p><p class="id-reminder">Check the student's physical college ID before recording movement.</p>
+        <form id="confirm-form"><input id="movement" type="hidden"><label class="check-line"><input id="id-check" type="checkbox" required> I checked the physical college ID.</label><button id="record-student-movement" class="button" type="submit">Record entry</button></form>
+      </section>
+      <section class="panel history-panel"><div class="history-heading"><div><p class="small-heading">RECENT ACTIVITY</p><h2>Recent scans</h2></div><span class="muted">Shared history</span></div><div id="scan-history"><p class="muted">No scans recorded yet.</p></div></section>
+      <section class="panel visitor-monitor">
+        <div class="history-heading"><div><p class="small-heading">VISITOR CHECK</p><h2>Approved visitors</h2></div><button id="visitor-list-refresh" class="text-button" type="button">Refresh</button></div>
+        <p class="muted small-copy">Overdue visitors who are still marked inside are highlighted with their contact details.</p>
+        <div id="guard-visitor-list" class="visitor-list"><p class="muted">Sign in to view approved visitors.</p></div>
+      </section>
+      <section class="panel">
+        <p class="small-heading">VISITOR PASS</p><h2>Visitor scan fallback</h2>
+        <details class="manual-scan"><summary>Use manual visitor input</summary>
+          <form id="visitor-scan-form"><label for="visitor-qr-token">Visitor QR link or token</label><div class="scan-row"><input id="visitor-qr-token" placeholder="Paste or type the visitor QR link" autocomplete="off" required><button class="button" type="submit">Find visitor</button></div></form>
+        </details>
+        <div id="visitor-scan-message" class="message hidden" role="status"></div>
+      </section>
+      <section id="guard-visitor-result" class="panel hidden">
+        <p class="small-heading">MATCHED VISITOR</p><h2 id="guard-visitor-name"></h2>
+        <p>Contact: <a id="guard-visitor-phone" href="#"></a></p>
+        <p>Visiting: <strong id="guard-visitor-host"></strong></p>
+        <p>Reason: <span id="guard-visitor-purpose"></span></p>
+        <p>Pass: <strong id="guard-visitor-pass-status"></strong> · Gate: <strong id="guard-visitor-gate-status"></strong></p>
+        <p id="guard-visitor-expiry" class="muted"></p>
+        <form id="visitor-confirm-form">
+          <label for="visitor-movement">Select movement</label><select id="visitor-movement" required><option value="">Choose entry or exit</option><option value="ENTRY">Entry — entering campus</option><option value="EXIT">Exit — leaving campus</option></select>
+          <label class="check-line"><input id="visitor-id-check" type="checkbox" required> I checked the visitor's photo ID.</label>
+          <button class="button" type="submit">Record visitor movement</button>
+        </form>
+      </section>
+    </section>
+  </main>
+  <footer>Campus Gate Pass · Guard station</footer>
+</body>
+</html>

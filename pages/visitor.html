@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visitor Pass | Campus Gate Pass</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="../js/backend-config.js?v=task8-1" defer></script>
+  <script src="../js/app.js?v=task8-1" defer></script>
+  <script src="../js/visitor-app.js?v=task8-1" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html"><span class="brand-icon">G</span> Campus Gate Pass</a>
+    <nav><a class="nav-link" href="../index.html">Student</a><a class="nav-link active" href="visitor.html">Visitor</a><a class="nav-link" href="guard.html">Guard</a></nav>
+  </header>
+  <main class="container narrow">
+    <section class="intro"><p class="small-heading">VISITOR PORTAL</p><h1>Request a visitor pass</h1><p>Submit your visit details. The campus admin reviews the request before a QR pass is issued.</p></section>
+    <div class="info-note"><strong>How it works:</strong> Request access, wait for admin approval, then show your QR and a photo ID at the gate.</div>
+
+    <section id="visitor-request" class="panel login-panel">
+      <h2>New visit request</h2>
+      <form id="visitor-request-form">
+        <label for="visitor-name-input">Your full name</label><input id="visitor-name-input" autocomplete="name" maxlength="100" required>
+        <label for="visitor-phone-input">Contact number</label><input id="visitor-phone-input" type="tel" autocomplete="tel" maxlength="30" required>
+        <label for="visitor-host-input">Person you are visiting</label><input id="visitor-host-input" maxlength="100" required>
+        <label for="visitor-purpose-input">Reason for visit</label><textarea id="visitor-purpose-input" maxlength="300" rows="3" required></textarea>
+        <label for="visitor-duration-input">Requested time on campus</label>
+        <select id="visitor-duration-input" required><option value="60">1 hour</option><option value="120" selected>2 hours</option><option value="240">4 hours</option><option value="480">8 hours</option></select>
+        <label for="visitor-access-code-input">Create a private access code</label><input id="visitor-access-code-input" type="password" minlength="6" maxlength="64" autocomplete="new-password" required>
+        <button class="button" type="submit">Send request to admin</button>
+      </form>
+      <div id="visitor-request-message" class="message hidden" role="status"></div>
+      <p class="account-switch">Already requested? <button id="show-visitor-login" class="text-button" type="button">Open my request</button></p>
+    </section>
+
+    <section id="visitor-login" class="panel login-panel hidden">
+      <h2>Open an existing request</h2>
+      <form id="visitor-login-form">
+        <label for="visitor-request-id">Request number</label><input id="visitor-request-id" inputmode="numeric" required>
+        <label for="visitor-access-code">Access code</label><input id="visitor-access-code" type="password" autocomplete="current-password" required>
+        <button class="button" type="submit">View request status</button>
+      </form>
+      <div id="visitor-login-message" class="message hidden" role="status"></div>
+      <p class="account-switch">Need a new pass? <button id="show-visitor-request" class="text-button" type="button">Make a request</button></p>
+    </section>
+
+    <section id="visitor-pass" class="panel hidden">
+      <div class="history-heading"><div><p class="small-heading">YOUR VISITOR PASS</p><h2 id="visitor-pass-name"></h2><p>Request number: <strong id="visitor-pass-id"></strong></p></div><button id="visitor-logout" class="text-button" type="button">Sign out</button></div>
+      <p>Request status: <strong id="visitor-pass-status">PENDING</strong></p>
+      <p id="visitor-pass-expiry" class="muted"></p>
+      <p id="visitor-pass-gate-status" class="muted"></p>
+      <div id="visitor-qr-panel" class="hidden">
+        <div class="qr-frame"><div id="visitor-qr" class="qr-code"></div></div>
+        <p class="pass-help">Show this QR and your photo ID to the guard.</p>
+      </div>
+      <div id="visitor-pass-message" class="message hidden" role="status"></div>
+    </section>
+    <p class="role-note">For help with a pending request, contact the campus admin.</p>
+  </main>
+  <footer>Campus Gate Pass · Visitor portal</footer>
+</body>
+</html>

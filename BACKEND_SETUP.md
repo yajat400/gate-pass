@@ -1,34 +1,51 @@
 # Campus Gate Pass setup
 
-The website is already connected to its Supabase project. The frontend is hosted on GitHub Pages, and Supabase stores student accounts, gate status, and scan history.
+The browser pages use the Supabase project configured in `js/backend-config.js`. This branch adds a visitor pass flow to the existing student and guard system.
 
-The existing database has been upgraded with `student_registration_migration.sql`; the old sample accounts are inactive. For a brand-new Supabase project, use the full `supabase_setup.sql` file instead.
+## Apply the visitor database migration
 
-## Student registration
+For the existing Campus Gate Pass project:
 
-- A student opens the student page and selects **Create a student account** once.
-- They enter their name, college roll number, and a pass code they choose.
-- The database saves the account and creates a unique QR token. The pass code is stored as a hash.
-- On later visits, the student signs in with the same roll number and pass code.
-- Roll numbers are compared without regard to letter case or surrounding spaces, so a second account with the same roll cannot be created.
+1. Open Supabase Dashboard → SQL Editor.
+2. Run `database/visitor_pass_migration.sql` once.
+3. Run the private PIN setup SQL below after replacing both placeholders.
 
-Students can use the same account on another phone or computer. They sign in there with their roll number and pass code; the gate status is loaded from the shared database.
+For a completely new Supabase project, run `database/supabase_setup.sql` once, then run the private PIN setup SQL below.
 
-## Guard page
+### Private PIN setup
 
-Open `guard.html`, sign in with the gate PIN, scan or enter the QR link, check the physical college ID, then record Entry or Exit. Set a private guard PIN in Supabase before deployment. The setup SQL uses a placeholder that must be replaced with a private value before running; never commit the real PIN.
+The visitor feature handles contact details. Before using it with real visitors, configure private credentials directly in the Supabase SQL Editor. Replace the quoted placeholder strings below with your own values, then run the statements. Do not put your chosen credentials into this repository or GitHub.
 
-## Supabase setup
+The guard PIN must be at least 8 characters. The admin passphrase must be at least 12 characters.
 
-For a fresh Supabase project, run `supabase_setup.sql` once in **SQL Editor**. It creates the tables and restricted functions and does not create sample student accounts. For an older project, `student_registration_migration.sql` adds registration and disables old `DEMO/` student rows; it keeps those rows as inactive history.
+```sql
+insert into public.guards (username, pin_hash)
+values ('Main Gate Guard', extensions.crypt('REPLACE_WITH_PRIVATE_8PLUS_GUARD_PIN', extensions.gen_salt('bf')))
+on conflict (username) do update
+set pin_hash = excluded.pin_hash, active = true;
 
-`backend-config.js` contains the Project URL and browser-safe publishable key. Never place a secret or service-role key in this file or GitHub Pages.
+insert into public.visitor_admins (display_name, pin_hash)
+values ('Campus Admin', extensions.crypt('REPLACE_WITH_PRIVATE_12PLUS_ADMIN_PASSPHRASE', extensions.gen_salt('bf')))
+on conflict (display_name) do update
+set pin_hash = excluded.pin_hash, active = true;
+```
 
-## What each technology does
+This changes the existing demo guard PIN. The previous public classroom PIN 2468 is rejected by this branch's guard login function because it is too short.
 
-- HTML provides the forms and pages.
-- CSS styles the student and guard pages.
-- JavaScript switches between registration and sign-in, draws the QR, and sends requests to Supabase.
-- Supabase stores student details and status so another device can read the same information.
+## Visitor workflow
 
-Names and roll numbers are self-reported by students in this classroom version. The system does not check them against an official college roster.
+- Visitors submit their name, phone, host, reason, requested duration, and a private access code at `pages/visitor.html`.
+- The visitor receives a request number and can return with that number and access code.
+- An admin signs in at `pages/admin.html` and approves or rejects the request.
+- Approval starts the requested visit duration. The visitor then sees a QR pass that the guard can scan from `pages/guard.html`.
+- The guard verifies a photo ID and records Entry or Exit. Expired passes still marked inside appear as overdue with contact details.
+- The guard view refreshes visitor status approximately every 20 seconds.
+
+## Existing student and guard pages
+
+- Student sign-in and registration remain on `index.html`.
+- Student and visitor scans are separate sections in `pages/guard.html`.
+- The admin portal is `pages/admin.html`.
+- `js/backend-config.js` contains the browser-safe Supabase Project URL and publishable/anon key. Never use a service-role key in browser code.
+
+The database stores pass codes as hashes. Student names/roll numbers and visitor details are self-reported and are not checked against an official college roster. This remains a classroom prototype, not a production identity verification system.
