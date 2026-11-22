@@ -4,8 +4,7 @@ Campus Gate Pass has separate student, visitor, guard, and admin pages. Students
 
 ## Live project
 
-- Website: https://aaravlamba7.github.io/gatepass/
-- Submission branch: `UpdateV1` (GitHub Pages publishes this branch from its root directory).
+- Website: https://yajat400.github.io/gate-pass/
 
 ## Visitor flow
 
